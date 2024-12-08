@@ -1,4 +1,4 @@
-install:
+run:
 	docker compose build
 	docker compose up -d
 	docker compose exec -t php chmod -R 755 /var/www/storage
