@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -43,5 +44,16 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 
 Route::middleware(['web'])->group(function () {
     Route::post('api/login', [AuthenticatedSessionController::class, 'store'])->middleware(['api']);
-});
 
+
+    Route::group(['prefix' => 'auth'], function () {
+        Route::post('login', [AuthController::class, 'login']);
+        Route::post('register', [AuthController::class, 'register']);
+    
+        Route::group(['middleware' => 'auth:sanctum'], function() {
+            Route::get('logout', [AuthController::class, 'logout']);
+            Route::get('user', [AuthController::class, 'user']);
+        });
+        });
+    });
+    
