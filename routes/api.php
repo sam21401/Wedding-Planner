@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -42,18 +43,23 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/auth/{provider}',[SocialAuthController::class, 'redirect'])->middleware('guest');
+
+Route::get('/auth/{provider}/callback',[SocialAuthController::class, 'callback'])->middleware('guest');
+
 Route::middleware(['web'])->group(function () {
     Route::post('api/login', [AuthenticatedSessionController::class, 'store'])->middleware(['api']);
+
 
 
     Route::group(['prefix' => 'auth'], function () {
         Route::post('login', [AuthController::class, 'login']);
         Route::post('register', [AuthController::class, 'register']);
-    
+
         Route::group(['middleware' => 'auth:sanctum'], function() {
             Route::get('logout', [AuthController::class, 'logout']);
             Route::get('user', [AuthController::class, 'user']);
         });
         });
     });
-    
+
