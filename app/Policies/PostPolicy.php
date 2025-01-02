@@ -21,7 +21,7 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        return false;
+        return $post->user_id === $user->id || $post->collaborators()->where('user_id', $user->id)->exists();
     }
 
     /**
@@ -29,7 +29,7 @@ class PostPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,8 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
-        return false;
+        return $post->user_id === $user->id || $post->collaborators()->where('user_id', $user->id)->where('role', 'organizer')->exists();
+
     }
 
     /**
@@ -45,7 +46,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
-        return false;
+        return $post->user_id === $user->id;
     }
 
     /**
@@ -63,4 +64,6 @@ class PostPolicy
     {
         return false;
     }
+    
+    
 }

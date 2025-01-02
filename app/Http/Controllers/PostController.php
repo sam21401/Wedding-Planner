@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
+use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Support\Facades\Gate;
 
-class PostController extends Controller
+class PostController extends Controller 
 {
-    /**
+    
+    /**  
      * Display a listing of the resource.
      */
     public function index()
@@ -24,10 +28,10 @@ class PostController extends Controller
     {
         $fields = $request->validate([
             'title' => 'required|max:255',
-            'body' => 'required'
+            'wedding_date' => 'date'
         ]);
 
-        $post = Post::create($fields);
+        $post = $request->user()->posts()->create($fields);
 
         return $post;
     }
@@ -45,14 +49,16 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
+        Gate::authorize('modify', $post);
+
         $fields = $request->validate([
             'title' => 'required|max:255',
-            'body' => 'required'
+            'wedding_date' => 'date'
         ]);
 
         $post->update($fields);
 
-        return $post;
+        return $post;   
     }
 
     /**
@@ -60,6 +66,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        Gate::authorize('modify', $post);
+        
         $post->delete();
         return ['message' => 'post was deleted'];
     }

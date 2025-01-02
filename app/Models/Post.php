@@ -11,6 +11,25 @@ class Post extends Model
     use HasFactory;
     protected $fillable = [
         'title',
-        'body'
+        'wedding_date', 
+        'user_id'
     ];
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function guests(){
+    return $this->hasMany(Guest::class);
+    }
+
+    public function collaborators()
+    {
+        return $this->hasMany(Collaborator::class, 'posts_id');
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 }
