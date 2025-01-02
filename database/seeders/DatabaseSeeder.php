@@ -29,5 +29,10 @@ class DatabaseSeeder extends Seeder
         $user->name = fake()->name();
         $user->email_verified_at = now(); 
         $user->save();
+
+
+        $this->call([
+            PostSeeder::class,
+        ]);
     }
 }
