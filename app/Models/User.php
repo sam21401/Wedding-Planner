@@ -50,4 +50,15 @@ class User extends Authenticatable
     public function posts(){
         return $this->hasMany(Post::class);
     }
+
+    public function collaborators()
+    {
+        return $this->hasMany(Collaborator::class);
+    }
+
+    public function taskNotes()
+    {
+        return $this->hasMany(TaskNote::class, 'created_by');
+    }
+
 }

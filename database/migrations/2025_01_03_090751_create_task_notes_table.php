@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('collaborators', function (Blueprint $table) {
+        Schema::create('task_notes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('posts_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->enum('role', ['organizer', 'assistant'])->default('assistant'); 
+            $table->foreignId('task_id')->constrained('tasks')->cascadeOnDelete();
+            $table->text('note');
+            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('collaborators');
+        Schema::dropIfExists('task_notes');
     }
 };

@@ -27,4 +27,10 @@ class Task extends Model
     {
         return $this->belongsTo(User::class, 'responsible_user_id');
     }
+
+    public function notes()
+    {
+        return $this->hasMany(TaskNote::class);
+    }
+
 }
