@@ -28,7 +28,22 @@ class PostController extends Controller
     {
         $fields = $request->validate([
             'title' => 'required|max:255',
-            'wedding_date' => 'date'
+            'description' => 'nullable|string',
+            'wedding_date' => 'nullable|date',
+            'venue_name' => 'nullable|string',
+            'venue_address' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'theme' => 'nullable|string',
+            'estimated_cost' => 'nullable|numeric',
+            'dress_code' => 'nullable|string',
+            'food_options' => 'nullable|string',
+            'rsvp_deadline' => 'nullable|date',
+            'transportation_notes' => 'nullable|string',
+            'gifts' => 'nullable|string',
+            'music_type' => 'nullable|string',
+            'host' => 'nullable|string',
+            'with_children' => 'nullable|boolean',
         ]);
 
         $post = $request->user()->posts()->create($fields);
@@ -51,9 +66,25 @@ class PostController extends Controller
     {
         Gate::authorize('modify', $post);
 
+       
         $fields = $request->validate([
             'title' => 'required|max:255',
-            'wedding_date' => 'date'
+            'description' => 'nullable|string',
+            'wedding_date' => 'nullable|date',
+            'venue_name' => 'nullable|string',
+            'venue_address' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'theme' => 'nullable|string',
+            'estimated_cost' => 'nullable|numeric',
+            'dress_code' => 'nullable|string',
+            'food_options' => 'nullable|string',
+            'rsvp_deadline' => 'nullable|date',
+            'transportation_notes' => 'nullable|string',
+            'gifts' => 'nullable|string',
+            'music_type' => 'nullable|string',
+            'host' => 'nullable|string',
+            'with_children' => 'nullable|boolean',
         ]);
 
         $post->update($fields);

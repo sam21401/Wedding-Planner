@@ -10,9 +10,24 @@ class Post extends Model
     /** @use HasFactory<\Database\Factories\PostFactory> */
     use HasFactory;
     protected $fillable = [
+        'user_id',
         'title',
-        'wedding_date', 
-        'user_id'
+        'description',
+        'wedding_date',
+        'venue_name',
+        'venue_address',
+        'latitude',
+        'longitude',
+        'theme',
+        'estimated_cost',
+        'dress_code',
+        'food_options',
+        'rsvp_deadline',
+        'transportation_notes',
+        'gifts',
+        'music_type',
+        'host',
+        'with_children',
     ];
 
     public function user(){

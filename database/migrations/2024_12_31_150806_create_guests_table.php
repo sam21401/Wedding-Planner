@@ -11,17 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('guests')) {
-            Schema::create('guests', function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('posts_id')->constrained()->onDelete('cascade');
-                $table->string('name');
-                $table->string('email')->nullable();
-                $table->enum('status', ['waiting', 'confirmed', 'declined'])->default('waiting');
-                $table->timestamp('status_updated_at')->nullable();
-                $table->timestamps();
-            });
-        }
+        Schema::create('guests', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('posts_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('email')->nullable();
+            $table->enum('status', ['waiting', 'confirmed', 'declined'])->default('waiting');
+            $table->timestamp('status_updated_at')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
