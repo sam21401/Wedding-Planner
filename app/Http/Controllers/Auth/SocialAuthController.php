@@ -38,15 +38,20 @@ class SocialAuthController extends Controller
                     'email' => $socialUser->getEmail(),
                     'provider_id' => $socialUser->getId(),
                     'provider' => $provider,
-                    'password' => bcrypt(Str::password('16')),
+                    'password' => bcrypt(Str::random(16)),
                 ]
             );
 
-            return response()->json([
-                'message' => 'User successfully authenticated via ' . $provider,
-                'user' => $user,
-            ], 200);
+            Auth::login($user);
 
+            if (Auth::check()) {
+                return response()->json([
+                    'message' => 'User successfully authenticated via ' . $provider,
+                    'user' => Auth::user(),
+                ], 200);
+            } else {
+                return response()->json(['message' => 'User not logged in'], 401);
+            }
         } catch (\Exception $e) {
             Log::error('Social login callback error: ' . $e->getMessage(), ['trace' => $e->getTrace()]);
             return response()->json(['error' => $e->getMessage()], 500);
