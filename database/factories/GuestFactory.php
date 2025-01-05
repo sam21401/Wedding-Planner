@@ -22,7 +22,7 @@ class GuestFactory extends Factory
         return [
             'posts_id' => Post::factory(), 
             'name' => fake()->name(), 
-            'email' => fake()->safeEmail(), 
+            'email' => fake()->unique()->safeEmail(), 
             'status' => fake()->randomElement(['waiting', 'confirmed', 'declined']), 
             'status_updated_at' => fake()->optional()->dateTime(),
         ];
