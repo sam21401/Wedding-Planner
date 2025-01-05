@@ -29,5 +29,15 @@ class DatabaseSeeder extends Seeder
         $user->name = fake()->name();
         $user->email_verified_at = now(); 
         $user->save();
+
+
+        $this->call([
+            MenuSeeder::class,
+            PostSeeder::class,
+            CollaboratorSeeder::class,
+            GuestSeeder::class,
+            TaskSeeder::class,
+            TaskNoteSeeder::class,
+        ]);
     }
 }
