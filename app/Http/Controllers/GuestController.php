@@ -2,56 +2,107 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\GuestStatus;
+use App\Http\Requests\GuestRequest;
+use App\Mail\GuestEmail;
 use App\Models\Guest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class GuestController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
-        return Guest::all();
+        $user = auth()->user()->getAuthIdentifier();
+        $guests = Guest::with('user')
+        ->where('user_id', $user)
+        ->paginate(25);
+
+        return response()->json($guests);
     }
 
-    public function store(Request $request)
-    {
-        $fields = $request->validate([
-            'wedding_id' => 'required|exists:weddings,id',
-            'name' => 'required|max:255',
-            'email' => 'nullable|email',
-            'status' => 'in:waiting,confirmed,declined',
-        ]);
 
-        $fields['status_updated_at'] = now(); // Set the status update timestamp
-        $guest = Guest::create($fields);
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(GuestRequest $guestRequest)
+    {
+        $userId = 2;
+        $validatedData = array_merge($guestRequest->validated(), ['user_id' => $userId]);
+        $guest = Guest::create($validatedData);
+        $token = Str::random(16);
+        $guest->update(['token' => $token]);
+
+        //Url from email messages
+        $acceptUrl = route('guest.accept', ['guest' => $guest->id]) . '?token=' . $token;
+        $declineUrl = route('guest.decline', ['guest' => $guest->id]) . '?token=' . $token;
+
+
+        if ($guest) {
+            $email = $guest->email;
+            $mailed = Mail::to($email)->send(new GuestEmail($acceptUrl, $declineUrl));
+            if ($mailed) {
+                $guest->status = GuestStatus::PENDING;
+                $guest->save();
+            }
+        }
 
         return response()->json($guest, 201);
     }
 
+    public function accept(Guest $guest, Request $request)
+    {
+        $tokenFromUrl = $request->query('token');
+        if ($guest->token !== $tokenFromUrl) {
+            return response()->json(['error' => 'Invalid token'], 400);
+        }
+        $guest->status = GuestStatus::APPROVED;
+        $guest->save();
+        return response()->json(['message' => 'invited accepted'], 200);
+    }
+
+    public function decline(Guest $guest, Request $request)
+    {
+        $tokenFromUrl = $request->query('token');
+        if ($guest->token !== $tokenFromUrl) {
+            return response()->json(['error' => 'Invalid token'], 400);
+        }
+        $guest->status = GuestStatus::DECLINED;
+        $guest->save();
+        return response()->json(['message' => 'invited declined'], 200);
+    }
+
+
+    /**
+     * Display the specified resource.
+     */
     public function show(Guest $guest)
     {
-        return $guest;
+        return response()->json($guest, 200);
     }
 
-    public function update(Request $request, Guest $guest)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(GuestRequest $guestRequest, Guest $guest)
     {
-        $fields = $request->validate([
-            'name' => 'sometimes|required|max:255',
-            'email' => 'nullable|email',
-            'status' => 'in:waiting,confirmed,declined',
-        ]);
-
-        if (isset($fields['status'])) {
-            $fields['status_updated_at'] = now();
-        }
-
-        $guest->update($fields);
-
-        return $guest;
+        $guest->update($guestRequest->validated());
+        return response()->json(['message' => 'Guest updated successfully'], 200);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function destroy(Guest $guest)
     {
         $guest->delete();
-        return response()->json(['message' => 'Guest deleted']);
+        return response()->json(['message' => 'Guest deleted successfully'], 200);
     }
+
 }
