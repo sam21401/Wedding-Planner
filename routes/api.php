@@ -5,6 +5,8 @@ use App\Http\Controllers\GuestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CollaboratorController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -14,11 +16,21 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Laravel\Socialite\Facades\Socialite;
 
+Route::apiResource('collaborators', CollaboratorController::class);
+
+Route::apiResource('posts', PostController::class);
+
+Route::apiResource('guests', GuestController::class);
+
+
+
+
+
 Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware('guest')
     ->name('register');
 
-Route::apiResource('posts', PostController::class);
+
 
 Route::post('/login', [AuthenticatedSessionController::class, 'store'])
     ->middleware('guest')
@@ -40,7 +52,7 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
     ->middleware(['auth', 'throttle:6,1'])
     ->name('verification.send');
 
-Route::apiResource('guests', GuestController::class);
+
 
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->middleware('auth')
@@ -63,7 +75,7 @@ Route::delete('/guests/{guest}',[GuestController::class,'destroy']);
 Route::get('/email/guest/accept/{guest}',[GuestController::class,'accept'])->name('guest.accept');
 Route::get('/email/guest/decline/{guest}',[GuestController::class,'decline'])->name('guest.decline');
 
-Route::apiResource('collaborators', CollaboratorController::class);
+
 
 Route::middleware(['web'])->group(function () {
     Route::post('api/login', [AuthenticatedSessionController::class, 'store'])->middleware(['api']);
