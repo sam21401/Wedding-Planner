@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\Guest;
 use Illuminate\Database\Seeder;
+use App\Models\Guest;
+use App\Models\User;
 
 class GuestSeeder extends Seeder
 {
@@ -13,6 +13,14 @@ class GuestSeeder extends Seeder
      */
     public function run(): void
     {
-        Guest::factory()->count(10)->create();
+        // Retrieve existing users from the database
+        $users = User::all();
+
+        // Seed guests for each user
+        foreach ($users as $user) {
+            Guest::factory()->count(10)->create([
+                'user_id' => $user->id, // Associate guests with a user
+            ]);
+        }
     }
 }

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_id')->constrained()->cascadeOnDelete(); // Reference to posts table
-            $table->string('dish_name'); // Name of the dish
-            $table->string('dish_type'); // Type of dish (e.g., Starter, Main, Dessert)
-            $table->string('options')->nullable(); // Options for the dish (e.g., Vegetarian, Vegan, Gluten-Free)
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete(); 
+            $table->string('dish_name'); 
+            $table->string('dish_type'); 
+            $table->string('options')->nullable(); 
             $table->timestamps();
         });
     }

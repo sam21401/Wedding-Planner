@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('surname');
             $table->string('phone')->nullable();
-            $table->string('email');
+            $table->string('email')->nullable();
             $table->string('status')->nullable();
             $table->string('token')->nullable();
             $table->unsignedBigInteger('user_id');
