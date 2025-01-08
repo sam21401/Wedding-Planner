@@ -63,4 +63,18 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertNoContent();
     }
+    public function test_user_can_login_with_remember_me(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+            'remember' => true,
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertNoContent();
+        $this->assertNotNull($response->headers->getCookies()[0]->getExpiresTime());
+    }
 }
