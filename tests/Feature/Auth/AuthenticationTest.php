@@ -34,7 +34,26 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
     }
+    public function test_users_can_not_authenticate_with_invalid_email(): void
+    {
+        $user = User::factory()->create();
 
+        $this->post('/login', [
+            'email' => 'wrong-email@example.com',
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+    }
+    public function test_login_fails_with_non_existent_email(): void
+    {
+        $response = $this->post('/login', [
+            'email' => 'nonexistent@example.com',
+            'password' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+    }
     public function test_users_can_logout(): void
     {
         $user = User::factory()->create();
