@@ -10,9 +10,8 @@ class Collaborator extends Model
     use HasFactory;
 
     protected $fillable = [
-        'wedding_id',
+        'post_id',
         'user_id',
-        'role',
     ];
 
     public function post()

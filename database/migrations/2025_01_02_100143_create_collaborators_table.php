@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('collaborators', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('posts_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->enum('role', ['organizer', 'assistant'])->default('assistant'); 
+            //$table->enum('role', ['organizer', 'assistant'])->default('assistant'); 
             $table->timestamps();
         });
     }

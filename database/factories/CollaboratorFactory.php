@@ -22,7 +22,7 @@ class CollaboratorFactory extends Factory
     
         'posts_id' => Post::factory(), 
         'user_id' => User::factory(), 
-        'role' => fake()->randomElement(['organizer', 'assistant']),
+        //'role' => fake()->randomElement(['organizer', 'assistant']),
         
         ];
     }

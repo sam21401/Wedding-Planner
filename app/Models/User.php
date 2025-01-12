@@ -53,9 +53,10 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
-    public function collaborators()
+    public function collaboratedPosts()
     {
-        return $this->hasMany(Collaborator::class);
+        return $this->belongsToMany(Post::class, 'collaborators', 'user_id', 'posts_id')
+                    ->withTimestamps();
     }
 
     public function taskNotes()

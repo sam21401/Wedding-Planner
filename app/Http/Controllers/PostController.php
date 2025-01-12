@@ -2,71 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePostRequest;
-use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
-use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Support\Facades\Gate;
 
-class PostController extends Controller 
+class PostController extends Controller
 {
-    
-    /**  
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        return Post::all();
-    }
+    public function index(Request $request)
+{
+    $user = $request->user();
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    $posts = Post::where('user_id', $user->id)
+                 ->select('id', 'title')
+                 ->get();
+
+    return response()->json($posts);
+}
+
     public function store(Request $request)
-    {
-        $fields = $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'nullable|string',
-            'wedding_date' => 'nullable|date',
-            'venue_name' => 'nullable|string',
-            'venue_address' => 'nullable|string',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-            'theme' => 'nullable|string',
-            'estimated_cost' => 'nullable|numeric',
-            'dress_code' => 'nullable|string',
-            'food_options' => 'nullable|string',
-            'rsvp_deadline' => 'nullable|date',
-            'transportation_notes' => 'nullable|string',
-            'gifts' => 'nullable|string',
-            'music_type' => 'nullable|string',
-            'host' => 'nullable|string',
-            'with_children' => 'nullable|boolean',
-        ]);
+{
+    $user = $request->user(); 
 
-        $post = $request->user()->posts()->create($fields);
 
-        return $post;
-    }
+    $fields = $request->validate([
+        'title' => 'required|max:255',
+        'description' => 'nullable|string',
+        'wedding_date' => 'nullable|date',
+        'venue_name' => 'nullable|string',
+        'venue_address' => 'nullable|string',
+        'latitude' => 'nullable|numeric',
+        'longitude' => 'nullable|numeric',
+        'theme' => 'nullable|string',
+        'estimated_cost' => 'nullable|numeric',
+        'dress_code' => 'nullable|string',
+        'food_options' => 'nullable|string',
+        'rsvp_deadline' => 'nullable|date',
+        'transportation_notes' => 'nullable|string',
+        'gifts' => 'nullable|string',
+        'music_type' => 'nullable|string',
+        'host' => 'nullable|string',
+        'with_children' => 'nullable|boolean',
+    ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Post $post)
-    {
-        return $post;
-    }
+    $post = $user->posts()->create($fields);
 
-    /**
-     * Update the specified resource in storage.
-     */
+    return response()->json($post, 201);
+}
+
+
     public function update(Request $request, Post $post)
     {
-        Gate::authorize('modify', $post);
+        $this->authorize('update', $post);
 
-       
         $fields = $request->validate([
             'title' => 'required|max:255',
             'description' => 'nullable|string',
@@ -89,17 +75,41 @@ class PostController extends Controller
 
         $post->update($fields);
 
-        return $post;   
+        return response()->json($post);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Post $post)
+    public function show(Post $post)
     {
-        Gate::authorize('modify', $post);
-        
+        $this->authorize('view', $post);
+
+        return response()->json($post);
+    }
+
+    public function delete(Post $post)
+    {
+        $this->authorize('delete', $post);
+
         $post->delete();
-        return ['message' => 'post was deleted'];
+
+        return response()->json(['message' => 'Post deleted successfully']);
+    }
+
+    public function landingPage(Post $post)
+    {
+        return response()->json([
+            'description' => $post->description,
+            'wedding_date' => $post->wedding_date,
+            'food_options' => $post->food_options,
+            'transportation_notes' => $post->transportation_notes,
+            'gifts' => $post->gifts,
+            'music_type' => $post->music_type,
+            'host' => $post->host,
+            'with_children' => $post->with_children,
+            'venue_name' => $post->venue_name,
+            'venue_address' => $post->venue_address,
+            'latitude' => $post->latitude,
+            'longitude' => $post->longitude,
+            'theme' => $post->theme,
+        ]);
     }
 }

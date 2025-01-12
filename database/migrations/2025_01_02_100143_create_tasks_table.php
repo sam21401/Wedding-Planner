@@ -1,33 +1,33 @@
-<?php
+    <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+    use Illuminate\Database\Migrations\Migration;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    return new class extends Migration
     {
-        Schema::create('tasks', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('posts_id')->constrained()->cascadeOnDelete();
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->enum('status', ['todo', 'in_progress', 'problem', 'done'])->default('todo');
-            $table->foreignId('responsible_user_id')->nullable()->constrained('users'); // Responsible user
-            $table->date('deadline')->nullable();
-            $table->timestamps();
-        });
-    }
+        /**
+         * Run the migrations.
+         */
+        public function up(): void
+        {
+            Schema::create('tasks', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('posts_id')->constrained()->cascadeOnDelete();
+                $table->string('title');
+                $table->text('description')->nullable();
+                $table->enum('status', ['todo', 'in_progress', 'problem', 'done'])->default('todo');
+                $table->foreignId('responsible_user_id')->nullable()->constrained('users'); 
+                $table->date('deadline')->nullable();
+                $table->timestamps();
+            });
+        }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('tasks');
-    }
-};
+        /**
+         * Reverse the migrations.
+         */
+        public function down(): void
+        {
+            Schema::dropIfExists('tasks');
+        }
+    };

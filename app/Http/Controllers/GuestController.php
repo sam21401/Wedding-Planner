@@ -105,4 +105,5 @@ class GuestController extends Controller
         return response()->json(['message' => 'Guest deleted successfully'], 200);
     }
 
+
 }
