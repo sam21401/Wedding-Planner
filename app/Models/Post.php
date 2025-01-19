@@ -30,6 +30,17 @@ class Post extends Model
         'with_children',
     ];
 
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function collaborators()
+    {
+        return $this->belongsToMany(User::class, 'collaborators', 'post_id', 'user_id')
+                    ->withTimestamps();
+    }
+
     public function user(){
         return $this->belongsTo(User::class);
     }
@@ -38,18 +49,11 @@ class Post extends Model
     return $this->hasMany(Guest::class);
     }
 
-    public function collaborators()
-    {
-        return $this->hasMany(Collaborator::class, 'posts_id');
-    }
+
 
     public function tasks()
     {
         return $this->hasMany(Task::class);
     }
 
-    public function menu()
-    {
-        return $this->hasMany(Menu::class);
-    }
 }

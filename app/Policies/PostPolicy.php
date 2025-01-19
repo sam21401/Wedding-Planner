@@ -4,7 +4,8 @@ namespace App\Policies;
 
 use App\Models\Post;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class PostPolicy
 {
@@ -13,15 +14,20 @@ class PostPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true; 
     }
+
+    
 
     /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, Post $post): bool
     {
-        return $post->user_id === $user->id || $post->collaborators()->where('user_id', $user->id)->exists();
+        
+        return $post->user_id === $user->id || 
+                (Schema::hasTable('collaborators') &&
+               $post->collaborators()->where('user_id', $user->id)->exists());
     }
 
     /**
@@ -29,7 +35,7 @@ class PostPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return Auth::check();
     }
 
     /**
@@ -37,8 +43,10 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
-        return $post->user_id === $user->id || $post->collaborators()->where('user_id', $user->id)->where('role', 'organizer')->exists();
 
+        return $post->user_id === $user->id || 
+                (Schema::hasTable('collaborators') &&
+               $post->collaborators()->where('user_id', $user->id)->where('role', 'organizer')->exists());
     }
 
     /**
@@ -46,6 +54,7 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
+    
         return $post->user_id === $user->id;
     }
 
@@ -54,7 +63,7 @@ class PostPolicy
      */
     public function restore(User $user, Post $post): bool
     {
-        return false;
+        return false; 
     }
 
     /**
@@ -62,8 +71,6 @@ class PostPolicy
      */
     public function forceDelete(User $user, Post $post): bool
     {
-        return false;
+        return false; 
     }
-    
-    
 }

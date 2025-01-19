@@ -15,20 +15,13 @@ return [
     |
     */
 
-    'paths' => ['*'],
-
-    'allowed_methods' => ['*'],
-
-    'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
-
-    'allowed_origins_patterns' => [],
-
-    'allowed_headers' => ['*'],
-
+    'paths' => ['/api/*'],
+    'allowed_methods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  
+    'allowed_origins' => ['http://localhost:5173'],  // Ustawienie origin frontendowego
+    'allowed_headers' => ['Authorization', 'Content-Type', 'X-Requested-With'],  
     'exposed_headers' => [],
+    'max_age' => 0,  
+    'supports_credentials' => false,  
 
-    'max_age' => 0,
-
-    'supports_credentials' => true,
 
 ];

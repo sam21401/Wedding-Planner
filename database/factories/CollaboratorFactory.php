@@ -20,9 +20,9 @@ class CollaboratorFactory extends Factory
     {
     return [
     
-        'posts_id' => Post::factory(), 
+        'post_id' => Post::factory(), 
         'user_id' => User::factory(), 
-        'role' => fake()->randomElement(['organizer', 'assistant']),
+        //'role' => fake()->randomElement(['organizer', 'assistant']),
         
         ];
     }

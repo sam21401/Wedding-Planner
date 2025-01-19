@@ -19,9 +19,13 @@ class GuestController extends Controller
      */
     public function index()
     {
-        $user = auth()->user()->getAuthIdentifier();
+        $userId = auth()->user()->getAuthIdentifier();
+
+        if (!$userId) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
         $guests = Guest::with('user')
-        ->where('user_id', $user)
+        ->where('user_id', $userId)
         ->paginate(25);
 
         return response()->json($guests);
@@ -33,7 +37,7 @@ class GuestController extends Controller
      */
     public function store(GuestRequest $guestRequest)
     {
-        $userId = 2;
+        $userId = auth()->user()->getAuthIdentifier();
         $validatedData = array_merge($guestRequest->validated(), ['user_id' => $userId]);
         $guest = Guest::create($validatedData);
         $token = Str::random(16);
@@ -103,6 +107,23 @@ class GuestController extends Controller
     {
         $guest->delete();
         return response()->json(['message' => 'Guest deleted successfully'], 200);
+    }
+
+    public function generateCsv(){
+        $userId = auth()->user()->getAuthIdentifier();
+        if (!$userId) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        $guests = Guest::where('user_id', $userId)->get();
+        $csv = "Name, Email, Status\n";
+        foreach($guests as $guest){
+            $csv .= $guest->name . ',' . $guest->email . ',' . $guest->status . "\n";
+
+        }
+        return response($csv)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="guests.csv"');
+
     }
 
 }
