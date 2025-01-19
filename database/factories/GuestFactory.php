@@ -19,9 +19,9 @@ class GuestFactory extends Factory
             'surname' => fake()->lastName(),
             'phone' => fake()->optional()->phoneNumber(),
             'email' => fake()->unique()->safeEmail(),
-            'status' => fake()->optional()->randomElement(['Confirmed', 'Pending', 'Declined']),
+            'status' => fake()->randomElement(['Confirmed', 'Pending', 'Declined']),
             'token' => fake()->optional()->uuid(),
-            'user_id' => null, // This will be set in the seeder
+            'user_id' => null, 
         ];
     }
 }

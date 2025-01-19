@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -14,15 +15,17 @@ class TaskController extends Controller
 
         $tasks = $post->tasks;
 
-        return view('tasks.index', compact('tasks'));
+        return response()->json($post->tasks);
     }
 
     public function show(Task $task)
     {
         $this->authorize('view', $task);
 
-        return view('tasks.show', compact('task'));
+        return response()->json($task);
     }
+
+    
 
     public function store(Request $request, Post $post)
     {
@@ -37,9 +40,11 @@ class TaskController extends Controller
 
         $task = $post->tasks()->create($validated);
 
-        return redirect()->route('tasks.index', $post);
+        return response()->json([
+            'message' => 'Task created successfully',
+            'task' => $task
+        ], 201);
     }
-
 
     public function update(Request $request, Task $task)
     {
@@ -54,7 +59,10 @@ class TaskController extends Controller
 
         $task->update($validated);
 
-        return redirect()->route('tasks.show', $task);
+        return response()->json([
+            'message' => 'Task updated successfully',
+            'task' => $task
+        ]);
     }
 
     public function destroy(Task $task)
@@ -63,7 +71,16 @@ class TaskController extends Controller
 
         $task->delete();
 
-        return redirect()->route('tasks.index', $task->post);
+        return response()->json([
+            'message' => 'Task deleted successfully'
+        ]);
+    }
+
+    public function tasksByCollaborator(User $collaborator)
+    {
+        $tasks = Task::where('responsible_user_id', $collaborator->id)->get();
+        return response()->json($tasks);
     }
 }
+
 

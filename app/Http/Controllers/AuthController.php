@@ -10,7 +10,7 @@ class AuthController extends Controller
 {
    public function register(Request $request) {
     $fields = $request->validate([
-        'name' => 'required|max:255|unique:users',
+        'name' => 'required|max:255',
         'email' => 'required|email|unique:users',
         'password' => 'required|confirmed'
     ]);
@@ -23,7 +23,7 @@ class AuthController extends Controller
         'user' => $user,
         'token' => $token->plainTextToken
     ];
-    
+
    }
 
    public function login(Request $request) {
@@ -40,7 +40,6 @@ class AuthController extends Controller
         ];
     }
     $token = $user->createToken($user->name);
-
     return [
         'user' => $user,
         'token' => $token->plainTextToken
@@ -53,4 +52,9 @@ class AuthController extends Controller
         'message' => 'You are logged out.'
     ];
    }
+
+   public function user(Request $request)
+    {
+        return $request->user(); 
+    }
 }

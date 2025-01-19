@@ -32,7 +32,6 @@ class DatabaseSeeder extends Seeder
 
 
         $this->call([
-            MenuSeeder::class,
             PostSeeder::class,
             CollaboratorSeeder::class,
             GuestSeeder::class,

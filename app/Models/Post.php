@@ -56,8 +56,4 @@ class Post extends Model
         return $this->hasMany(Task::class);
     }
 
-    public function menu()
-    {
-        return $this->hasMany(Menu::class);
-    }
 }

@@ -20,17 +20,11 @@ class TaskNote extends Model
         'created_by',
     ];
 
-    /**
-     * Get the task associated with the note.
-     */
     public function task()
     {
         return $this->belongsTo(Task::class);
     }
 
-    /**
-     * Get the user who created the note.
-     */
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

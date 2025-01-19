@@ -23,8 +23,7 @@ class TaskPolicy
 
     public function create(User $user, Post $post)
     {
-        return $user->id === $post->user_id || 
-               $post->collaborators()->where('user_id', $user->id)->exists();
+        return $user->id === $post->user_id;
     }
 
     public function update(User $user, Task $task)
