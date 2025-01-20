@@ -92,4 +92,17 @@ class PasswordResetTest extends TestCase
 
         $response->assertSessionHasErrors('token');
     }
+    public function test_reset_password_request_fails_with_invalid_email(): void
+    {
+        $response = $this->post('/forgot-password', ['email' => 'nonexistent@example.com']);
+
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_reset_password_request_fails_with_invalid_email_format(): void
+    {
+        $response = $this->post('/forgot-password', ['email' => 'invalid-email']);
+
+        $response->assertSessionHasErrors('email');
+    }
 }

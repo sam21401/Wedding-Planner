@@ -77,4 +77,53 @@ class AuthenticationTest extends TestCase
         $response->assertNoContent();
         $this->assertNotNull($response->headers->getCookies()[0]->getExpiresTime());
     }
+    public function test_login_fails_with_missing_email(): void
+    {
+        $response = $this->post('/login', [
+            'password' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_login_fails_with_missing_password(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+        ]);
+
+        $response->assertSessionHasErrors('password');
+    }
+
+    public function test_login_fails_with_missing_email_and_password(): void
+    {
+        $response = $this->post('/login', []);
+
+        $response->assertSessionHasErrors(['email', 'password']);
+    }
+    public function test_login_fails_with_inactive_user(): void
+    {
+        $user = User::factory()->create(['active' => false]);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_login_fails_with_unverified_email(): void
+    {
+        $user = User::factory()->create(['email_verified_at' => null]);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+    }
 }

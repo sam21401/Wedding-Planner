@@ -32,4 +32,34 @@ class EmailChangeTest extends TestCase
 
         $response->assertSessionHasErrors('email');
     }
+    public function test_email_change_fails_with_missing_email(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->put('/email/change', []);
+
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_email_change_fails_with_email_already_taken(): void
+    {
+        $user = User::factory()->create();
+        $existingUser = User::factory()->create(['email' => 'existing@example.com']);
+
+        $response = $this->actingAs($user)->put('/email/change', [
+            'email' => 'existing@example.com',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+    }
+    public function test_email_change_fails_with_invalid_email_format(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->put('/email/change', [
+            'email' => 'invalid-email-format',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+    }
 }
