@@ -50,13 +50,6 @@ Route::get('/email/guest/decline/{guest}',[GuestController::class,'decline'])->n
 
 
 
-Route::middleware(['web'])->group(function () {
-
-
-    Route::apiResource('tasks', TaskController::class);
-});
-
-
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
@@ -65,18 +58,35 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
 
     Route::get('/guests/csv', [GuestController::class, 'generateCsv']);
+    Route::get('/guests/precentage', [GuestController::class, 'getResponsePercentage']);
     Route::get('/guests',[GuestController::class,'index']);
     Route::post('/guests',[GuestController::class,'store']);
     Route::get('/guests/{guest}',[GuestController::class,'show']);
     Route::put('/guests/{guest}',[GuestController::class,'update']);
     Route::delete('/guests/{guest}',[GuestController::class,'destroy']);
 
-    Route::post('/posts', [PostController::class, 'store']);
-    Route::put('/posts/{post}', [PostController::class, 'update']);
-    Route::get('/posts/{post}', [PostController::class, 'show']);
-    Route::delete('/posts/{post}', [PostController::class, 'delete']);
+    Route::apiResource('posts', PostController::class);
+
+    Route::get('/tasks', [TaskController::class, 'index']);
+    Route::post('/posts/{post}/tasks', [TaskController::class, 'store']);
+    Route::get('/tasks/{task}', [TaskController::class, 'show']);
+    Route::put('/tasks/{task}', [TaskController::class, 'update']);
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
+    Route::get('/tasks/collaborator/{collaborator}', [TaskController::class, 'tasksByCollaborator']);
 
 
+    Route::get('/tasks/{task}/notes', [TaskNoteController::class, 'index']); 
+    Route::post('/tasks/{task}/notes', [TaskNoteController::class, 'store']); 
+    Route::get('/tasks/{task}/notes/{note}', [TaskNoteController::class, 'show']);
+    Route::put('/tasks/{task}/notes/{note}', [TaskNoteController::class, 'update']); 
+    Route::delete('/tasks/{task}/notes/{note}', [TaskNoteController::class, 'destroy']);
+
+
+    Route::get('/posts/{post}/collaborators', [CollaboratorController::class, 'index']); 
+    Route::post('/posts/{post}/collaborators', [CollaboratorController::class, 'store']);
+    Route::get('/collaborators/{collaborator}', [CollaboratorController::class, 'show']); 
+    Route::put('/collaborators/{collaborator}', [CollaboratorController::class, 'update']); 
+    Route::delete('/collaborators/{collaborator}', [CollaboratorController::class, 'destroy']);
 });
 Route::get('/post/{post}/landingpage', [PostController::class, 'landingPage']);
 

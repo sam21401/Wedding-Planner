@@ -26,11 +26,34 @@ class CollaboratorController extends Controller
             'post_id' => $postId,
         ]);
 
+        if ($post->collaborators()->where('user_id', $validated['user_id'])->exists()) {
+            return response()->json(['message' => 'This user is already a collaborator on this post.'], 400);
+        }
+
         $post->collaborators()->attach($validated['user_id']);
 
         return response()->json(['message' => 'Collaborator added successfully.']);
     }
 
+    public function show(Collaborator $collaborator)
+    {
+        $this->authorize('view', $collaborator);
+
+        return response()->json($collaborator);
+    }
+
+    public function update(Request $request, Collaborator $collaborator)
+    {
+        $this->authorize('update', $collaborator);
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $collaborator->update($validated);
+
+        return response()->json(['message' => 'Collaborator updated successfully.']);
+    }
 
     public function destroy(Collaborator $collaborator)
     {

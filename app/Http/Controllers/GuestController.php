@@ -126,4 +126,25 @@ class GuestController extends Controller
 
     }
 
+    public function getResponsePercentage()
+    {
+        $userId = auth()->user()->getAuthIdentifier();
+        if (!$userId) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $totalGuests = Guest::where('user_id', $userId)->count();
+        if ($totalGuests === 0) {
+            return response()->json(['message' => 'No guests found', 'percentage' => 0], 200);
+        }
+
+        $respondedGuests = Guest::where('user_id', $userId)
+            ->where('status', '!=', GuestStatus::PENDING)
+            ->count();
+
+        $percentage = round(($respondedGuests / $totalGuests) * 100, 2);
+
+        return response()->json(['percentage' => $percentage], 200);
+    }
+
 }

@@ -13,12 +13,14 @@
         {
             Schema::create('tasks', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('posts_id')->constrained()->cascadeOnDelete();
                 $table->string('title');
                 $table->text('description')->nullable();
                 $table->enum('status', ['todo', 'in_progress', 'problem', 'done'])->default('todo');
-                $table->foreignId('responsible_user_id')->nullable()->constrained('users'); 
                 $table->date('deadline')->nullable();
+                $table->unsignedBigInteger('post_id');
+                $table->foreign('post_id')->references('id')->on('posts')->cascadeOnDelete();
+                $table->unsignedBigInteger('responsible_user_id')->nullable();
+                $table->foreign('responsible_user_id')->references('id')->on('users')->nullOnDelete();
                 $table->timestamps();
             });
         }

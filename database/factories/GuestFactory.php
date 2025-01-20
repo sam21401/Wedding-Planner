@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Guest;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
 
 class GuestFactory extends Factory
 {
@@ -21,7 +22,7 @@ class GuestFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'status' => fake()->randomElement(['Confirmed', 'Pending', 'Declined']),
             'token' => fake()->optional()->uuid(),
-            'user_id' => null, 
+            'user_id' => User::factory(), 
         ];
     }
 }

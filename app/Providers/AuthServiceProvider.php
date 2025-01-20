@@ -29,9 +29,6 @@ class AuthServiceProvider extends ServiceProvider
         Collaborator::class => CollaboratorPolicy::class,
         Task::class => TaskPolicy::class,
         TaskNote::class => TaskNotePolicy::class,
-        Menu::class => MenuPolicy::class,
-        Guest::class => GuestPolicy::class,
-        Post::class => PostPolicy::class,
     ];
 
     /**

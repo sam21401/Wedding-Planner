@@ -4,18 +4,29 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\Post;
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class TaskController extends Controller
 {
-    public function index(Post $post)
+    public function index()
     {
-        $this->authorize('viewAny', [Task::class, $post]);
+        $userId = auth()->user()->id;
 
-        $tasks = $post->tasks;
+        if (!$userId) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
-        return response()->json($post->tasks);
+        $posts = Post::where('user_id', $userId)->get();
+
+        $tasks = [];
+        foreach ($posts as $post) {
+            foreach ($post->tasks as $task) {
+                $tasks[] = $task;
+            }
+        }
+
+        return response()->json($tasks);
     }
 
     public function show(Task $task)
@@ -25,20 +36,19 @@ class TaskController extends Controller
         return response()->json($task);
     }
 
-    
-
     public function store(Request $request, Post $post)
     {
-        $this->authorize('create', [Task::class, $post]);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'assigned_to' => 'nullable|exists:users,id',
-            'due_date' => 'nullable|date',
+            'deadline' => 'nullable|date',
         ]);
 
-        $task = $post->tasks()->create($validated);
+        $validated['post_id'] = $post->id;
+
+        $task = Task::create($validated);
 
         return response()->json([
             'message' => 'Task created successfully',
@@ -54,7 +64,7 @@ class TaskController extends Controller
             'title' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
             'assigned_to' => 'nullable|exists:users,id',
-            'due_date' => 'nullable|date',
+            'deadline' => 'nullable|date',
         ]);
 
         $task->update($validated);
@@ -79,6 +89,7 @@ class TaskController extends Controller
     public function tasksByCollaborator(User $collaborator)
     {
         $tasks = Task::where('responsible_user_id', $collaborator->id)->get();
+        
         return response()->json($tasks);
     }
 }
