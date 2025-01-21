@@ -1,0 +1,89 @@
+networks:
+  php-network:
+    driver: bridge
+  traefik-network:
+    external: true
+
+volumes:
+  mysql-data:
+  redis-data:
+
+services:
+  php:
+    build:
+      dockerfile: Dockerfile
+    container_name: wp-php
+    user: "${USER_ID}"
+    volumes:
+      - .:/var/www
+    networks:
+      - php-network
+    working_dir: "/var/www"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27.2
+    volumes:
+      - .:/var/www
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - php-network
+      - traefik-network
+    working_dir: "/var/www"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+      - "traefik.http.routers.backend-router.rule=Host(`localhost`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=80"
+    depends_on:
+      - php
+
+  mailpit:
+    image: axllent/mailpit:v1.20.5
+    container_name: wp-mailpit
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+      - "traefik.http.routers.mailpit-router.rule=Host(`mail.weddingplanner.localhost`)"
+      - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
+    networks:
+      - php-network
+      - traefik-network
+    ports:
+      - 8025:8025
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.2.5-alpine3.19
+    container_name: wp-redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    networks:
+      - php-network
+    restart: unless-stopped
+  db:
+    image: mysql:9.1
+    container_name: wp-db
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: always
+    expose:
+     - 3306
+    networks:
+      - php-network
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+
+
