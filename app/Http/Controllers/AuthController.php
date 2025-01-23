@@ -57,4 +57,16 @@ class AuthController extends Controller
     {
         return $request->user(); 
     }
+    public function changeEmail(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email', Rule::unique('users', 'email')],
+        ]);
+
+        $user = Auth::user();
+        $user->email = $request->email;
+        $user->save();
+
+        return response()->json(['message' => 'Email updated successfully']);
+    }
 }

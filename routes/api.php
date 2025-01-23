@@ -56,6 +56,7 @@ Route::post('register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/user/email', [AuthController::class, 'changeEmail']);
 
     Route::get('/guests/csv', [GuestController::class, 'generateCsv']);
     Route::get('/guests/precentage', [GuestController::class, 'getResponsePercentage']);
