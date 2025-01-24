@@ -4,6 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Schema(
+ *     schema="Collaborator",
+ *     type="object",
+ *     title="Collaborator",
+ *     properties={
+ *         @OA\Property(property="id", type="integer", example=1),
+ *         @OA\Property(property="post_id", type="integer", example=1),
+ *         @OA\Property(property="user_id", type="integer", example=2)
+ *     }
+ * )
+ */
 
 class Collaborator extends Model
 {

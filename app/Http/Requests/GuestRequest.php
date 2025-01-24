@@ -5,6 +5,36 @@ namespace App\Http\Requests;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * @OA\Schema(
+ *     required={"name", "email", "surname", "phone"},
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         description="Guest's first name",
+ *         example="John"
+ *     ),
+ *     @OA\Property(
+ *         property="email",
+ *         type="string",
+ *         format="email",
+ *         description="Guest's email address",
+ *         example="john.doe@example.com"
+ *     ),
+ *     @OA\Property(
+ *         property="surname",
+ *         type="string",
+ *         description="Guest's surname",
+ *         example="Doe"
+ *     ),
+ *     @OA\Property(
+ *         property="phone",
+ *         type="string",
+ *         description="Guest's phone number",
+ *         example="+1234567890"
+ *     )
+ * )
+ */
 class GuestRequest extends FormRequest
 {
     /**

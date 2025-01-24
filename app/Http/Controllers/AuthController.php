@@ -7,7 +7,25 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use OpenApi\Annotations as OA;
 
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     type="object",
+ *     title="User",
+ *     properties={
+ *         @OA\Property(property="id", type="integer", example=1),
+ *         @OA\Property(property="provider", type="string", example="google"),
+ *         @OA\Property(property="provider_id", type="string", example="1234567890"),
+ *         @OA\Property(property="name", type="string", example="John Doe"),
+ *         @OA\Property(property="email", type="string", example="johndoe@example.com"),
+ *         @OA\Property(property="password", type="string", example="hashedpassword")
+ *     }
+ * )
+ */
+
+ 
 class AuthController extends Controller
 {
    public function register(Request $request) {
