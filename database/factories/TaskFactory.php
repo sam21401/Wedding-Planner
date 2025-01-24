@@ -20,12 +20,11 @@ class TaskFactory extends Factory
     public function definition(): array
     {
         return [
-            'post_id' => Post::factory(),
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
             'status' => fake()->randomElement(['todo', 'in_progress', 'problem', 'done']),
             'responsible_user_id' => User::factory(),
-            'deadline' => fake()->date(),
+            'deadline' => fake()->optional()->date(),
         ];
     }
 }

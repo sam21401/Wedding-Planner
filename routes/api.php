@@ -76,18 +76,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tasks/collaborator/{collaborator}', [TaskController::class, 'tasksByCollaborator']);
 
 
-    Route::get('/tasks/{task}/notes', [TaskNoteController::class, 'index']); 
-    Route::post('/tasks/{task}/notes', [TaskNoteController::class, 'store']); 
-    Route::get('/tasks/{task}/notes/{note}', [TaskNoteController::class, 'show']);
-    Route::put('/tasks/{task}/notes/{note}', [TaskNoteController::class, 'update']); 
-    Route::delete('/tasks/{task}/notes/{note}', [TaskNoteController::class, 'destroy']);
+    Route::apiResource('tasks', TaskController::class);
 
 
-    Route::get('/posts/{post}/collaborators', [CollaboratorController::class, 'index']); 
-    Route::post('/posts/{post}/collaborators', [CollaboratorController::class, 'store']);
-    Route::get('/collaborators/{collaborator}', [CollaboratorController::class, 'show']); 
-    Route::put('/collaborators/{collaborator}', [CollaboratorController::class, 'update']); 
-    Route::delete('/collaborators/{collaborator}', [CollaboratorController::class, 'destroy']);
+    Route::apiResource('collaborators', CollaboratorController::class);
 });
 Route::get('/post/{post}/landingpage', [PostController::class, 'landingPage']);
 

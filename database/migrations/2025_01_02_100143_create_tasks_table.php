@@ -17,8 +17,8 @@
                 $table->text('description')->nullable();
                 $table->enum('status', ['todo', 'in_progress', 'problem', 'done'])->default('todo');
                 $table->date('deadline')->nullable();
-                $table->unsignedBigInteger('post_id');
-                $table->foreign('post_id')->references('id')->on('posts')->cascadeOnDelete();
+                //$table->unsignedBigInteger('post_id');
+                //$table->foreign('post_id')->references('id')->on('posts')->cascadeOnDelete();
                 $table->unsignedBigInteger('responsible_user_id')->nullable();
                 $table->foreign('responsible_user_id')->references('id')->on('users')->nullOnDelete();
                 $table->timestamps();

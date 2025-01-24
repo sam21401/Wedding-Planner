@@ -3,64 +3,62 @@
 namespace App\Http\Controllers;
 
 use App\Models\Collaborator;
-use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CollaboratorController extends Controller
 {
-    public function index(Post $post)
+    /**
+     * Display a listing of collaborators.
+     */
+    public function index()
     {
-        $this->authorize('viewAny', [Collaborator::class, $post]);
-
-        return response()->json($post->collaborators);
+        return response()->json(Collaborator::all());
     }
 
-    public function store(Request $request, Post $post)
+    /**
+     * Store a newly created collaborator.
+     */
+    public function store(Request $request)
     {
-        $this->authorize('create', [Collaborator::class, $post]);
-
-        $postId = $post->id;
-
-        $validated = $request->validate([
+        $request->validate([
             'user_id' => 'required|exists:users,id',
-            'post_id' => $postId,
         ]);
 
-        if ($post->collaborators()->where('user_id', $validated['user_id'])->exists()) {
-            return response()->json(['message' => 'This user is already a collaborator on this post.'], 400);
-        }
+        $collaborator = Collaborator::create($request->only('user_id'));
 
-        $post->collaborators()->attach($validated['user_id']);
-
-        return response()->json(['message' => 'Collaborator added successfully.']);
+        return response()->json($collaborator, 201);
     }
 
+    /**
+     * Display the specified collaborator.
+     */
     public function show(Collaborator $collaborator)
     {
-        $this->authorize('view', $collaborator);
+        return response()->json($collaborator);
+    }
+
+    /**
+     * Update the specified collaborator.
+     */
+    public function update(Request $request, Collaborator $collaborator)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $collaborator->update($request->only('user_id'));
 
         return response()->json($collaborator);
     }
 
-    public function update(Request $request, Collaborator $collaborator)
-    {
-        $this->authorize('update', $collaborator);
-
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        $collaborator->update($validated);
-
-        return response()->json(['message' => 'Collaborator updated successfully.']);
-    }
-
+    /**
+     * Remove the specified collaborator from storage.
+     */
     public function destroy(Collaborator $collaborator)
     {
-        $this->authorize('delete', $collaborator);
-
         $collaborator->delete();
-
         return response()->json(['message' => 'Collaborator removed successfully.']);
     }
 }
