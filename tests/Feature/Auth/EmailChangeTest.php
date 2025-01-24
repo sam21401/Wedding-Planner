@@ -10,62 +10,81 @@ class EmailChangeTest extends TestCase
 {
     use RefreshDatabase;
 
-    // /** @test */
-    // public function it_can_change_user_email()
-    // {
-    //     $user = \App\Models\User::factory()->create();
-    //     $this->actingAs($user);
+    public function test_user_can_change_email()
+    {
+        $user = User::factory()->create();
 
-    //     $response = $this->putJson('/api/user/email', [
-    //         'email' => 'newemail@example.com',
-    //     ]);
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/user/email', [
+                'email' => 'newemail@example.com',
+            ]);
 
-    //     $response->assertStatus(200);
-    //     $response->assertJson(['message' => 'Email updated successfully']);
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'email' => 'newemail@example.com',
+        ]);
+    }
+    public function test_email_must_be_valid()
+    {
+        $user = User::factory()->create();
 
-    //     $this->assertDatabaseHas('users', [
-    //         'id' => $user->id,
-    //         'email' => 'newemail@example.com',
-    //     ]);
-    // }
-    // public function test_email_change_fails_with_invalid_email(): void
-    // {
-    //     $user = User::factory()->create();
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/user/email', [
+                'email' => 'not-an-email',
+            ]);
 
-    //     $response = $this->actingAs($user)->put('/email/change', [
-    //         'email' => 'invalid-email',
-    //     ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('email');
+    }
+    public function test_email_must_be_unique()
+    {
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
 
-    //     $response->assertSessionHasErrors('email');
-    // }
-    // public function test_email_change_fails_with_missing_email(): void
-    // {
-    //     $user = User::factory()->create();
+        $response = $this->actingAs($user1, 'sanctum')
+            ->postJson('/api/user/email', [
+                'email' => $user2->email,
+            ]);
 
-    //     $response = $this->actingAs($user)->put('/email/change', []);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('email');
+    }
 
-    //     $response->assertSessionHasErrors('email');
-    // }
+    public function test_guest_cannot_change_email()
+    {
+        $response = $this->postJson('/api/user/email', [
+            'email' => 'guestemail@example.com',
+        ]);
 
-    // public function test_email_change_fails_with_email_already_taken(): void
-    // {
-    //     $user = User::factory()->create();
-    //     $existingUser = User::factory()->create(['email' => 'existing@example.com']);
+        $response->assertStatus(401); // Unauthorized
+    }
 
-    //     $response = $this->actingAs($user)->put('/email/change', [
-    //         'email' => 'existing@example.com',
-    //     ]);
+    public function test_email_is_required()
+    {
+        $user = User::factory()->create();
 
-    //     $response->assertSessionHasErrors('email');
-    // }
-    // public function test_email_change_fails_with_invalid_email_format(): void
-    // {
-    //     $user = User::factory()->create();
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/user/email', []);
 
-    //     $response = $this->actingAs($user)->put('/email/change', [
-    //         'email' => 'invalid-email-format',
-    //     ]);
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('email');
+    }
 
-    //     $response->assertSessionHasErrors('email');
-    // }
+    public function test_cannot_change_to_same_email()
+    {
+        $user = User::factory()->create([
+            'email' => 'currentemail@example.com',
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')
+            ->postJson('/api/user/email', [
+                'email' => 'currentemail@example.com',
+            ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('email');
+    }
+
+    
 }

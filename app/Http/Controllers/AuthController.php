@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -59,14 +61,18 @@ class AuthController extends Controller
     }
     public function changeEmail(Request $request)
     {
-        $request->validate([
-            'email' => ['required', 'email', Rule::unique('users', 'email')],
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|unique:users,email',
         ]);
 
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
         $user = Auth::user();
-        $user->email = $request->email;
+        $user->email = $request->input('email');
         $user->save();
 
-        return response()->json(['message' => 'Email updated successfully']);
+        return response()->json(['message' => 'Email updated successfully'], 200);
     }
 }

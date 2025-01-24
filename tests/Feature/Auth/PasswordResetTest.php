@@ -3,9 +3,9 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 
@@ -13,65 +13,74 @@ class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;
 
-    // public function test_can_send_password_reset_link()
-    // {
-    //     $user = \App\Models\User::factory()->create();  // Użycie fabryki do stworzenia testowego użytkownika
+    public function test_reset_password_with_valid_data()
+    {
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('OldPassword123'),
+        ]);
 
-    //     $response = $this->postJson(route('password.email'), [
-    //         'email' => $user->email,
-    //     ]);
+        $token = Password::createToken($user);
 
-    //     $response->assertStatus(200); // Oczekujemy statusu 200
-    //     $response->assertJson([
-    //         'status' => 'We have emailed your password reset link!',
-    //     ]);
-    // }
+        $response = $this->postJson('/api/reset-password', [
+            'email' => 'test@example.com',
+            'token' => $token,
+            'password' => 'NewPassword123!',
+            'password_confirmation' => 'NewPassword123!',
+        ]);
 
-    // public function test_invalid_email_for_password_reset()
-    // {
-    //     $response = $this->postJson(route('password.email'), [
-    //         'email' => 'invalid@example.com',
-    //     ]);
+        $response->assertStatus(200);
+        $response->assertJson(['status' => trans(Password::PASSWORD_RESET)]);
 
-    //     $response->assertStatus(400); // Błędny e-mail powinien zwrócić 400
-    //     $response->assertJsonValidationErrors('email');
-    // }
-    // public function test_can_reset_password_with_valid_token()
-    // {
-    //     $user = \App\Models\User::factory()->create();
+        $this->assertTrue(Hash::check('NewPassword123!', $user->refresh()->password));
+    }
 
-    //     // Tworzymy token resetowania
-    //     $token = \Password::createToken($user);
+    public function test_reset_password_with_invalid_token()
+    {
+        $user = User::factory()->create([
+            'email' => 'test@example.com',
+            'password' => Hash::make('OldPassword123'),
+        ]);
 
-    //     $response = $this->postJson(route('password.store'), [
-    //         'email' => $user->email,
-    //         'token' => $token,
-    //         'password' => 'newpassword123',
-    //         'password_confirmation' => 'newpassword123',
-    //     ]);
+        $response = $this->postJson('/api/reset-password', [
+            'email' => 'test@example.com',
+            'token' => 'invalid-token',
+            'password' => 'NewPassword123!',
+            'password_confirmation' => 'NewPassword123!',
+        ]);
 
-    //     $response->assertStatus(200);
-    //     $response->assertJson([
-    //         'status' => 'Password has been reset successfully.',
-    //     ]);
-    // }
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['email']);
+    }
+    public function test_reset_password_with_invalid_email()
+    {
+        $response = $this->postJson('/api/reset-password', [
+            'email' => 'invalid@example.com',
+            'token' => Str::random(60),
+            'password' => 'NewPassword123!',
+            'password_confirmation' => 'NewPassword123!',
+        ]);
 
-    /** @test */
-    // public function test_reset_password_with_invalid_token()
-    // {
-    //     $user = \App\Models\User::factory()->create();
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['email']);
+    }
 
-    //     $response = $this->postJson(route('password.store'), [
-    //         'email' => $user->email,
-    //         'token' => $token = 'invalid',
-    //         'password' => 'newpassword123',
-    //         'password_confirmation' => 'newpassword123',
-    //     ]);
+    public function test_reset_password_with_mismatched_passwords()
+    {
+        $user = User::factory()->create();
 
-    //     $response->assertStatus(400); // Token jest niepoprawny
-    //     $response->assertJsonValidationErrors('email');
-    // }
-    /** @test */
+        $token = Password::createToken($user);
+
+        $response = $this->postJson('/api/reset-password', [
+            'email' => $user->email,
+            'token' => $token,
+            'password' => 'NewPassword123!',
+            'password_confirmation' => 'DifferentPassword!',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['password']);
+    }
     public function test_passwords_must_match_for_reset()
     {
         $user = \App\Models\User::factory()->create();
@@ -88,18 +97,13 @@ class PasswordResetTest extends TestCase
         $response->assertJsonValidationErrors('password');
     }
 
-    // public function test_password_reset_fails_without_token(): void
-    // {
-    //     $user = User::factory()->create();
+    public function test_reset_password_with_missing_fields()
+    {
+        $response = $this->postJson('/api/reset-password', []);
 
-    //     $response = $this->post('/reset-password', [
-    //         'email' => $user->email,
-    //         'password' => 'password',
-    //         'password_confirmation' => 'password',
-    //     ]);
-
-    //     $response->assertSessionHasErrors('token');
-    // }
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['email', 'token', 'password']);
+    }
     // public function test_reset_password_request_fails_with_invalid_email(): void
     // {
     //     $response = $this->post('/forgot-password', ['email' => 'nonexistent@example.com']);
